@@ -1,0 +1,50 @@
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.OrderTransMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加订单运输记录 -->
+	<insert id="addOrderTrans" parameterType="orderTrans">
+		insert into t_orderTrans(orderObj,carRouteObj,joinTime,memo) values 
+		(#{orderObj.orderId},#{carRouteObj.routeId},#{joinTime},#{memo})
+	</insert>
+
+	<!-- 按照查询条件分页查询订单运输记录 -->
+	<select id="queryOrderTrans" resultMap="orderTransMap" >
+		select t_orderTrans.* from t_orderTrans,t_carRoute,t_orderInfo ${where} and t_orderTrans.orderObj = t_orderInfo.orderId and t_orderTrans.carRouteObj = t_carRoute.routeId limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="orderTransMap" type="orderTrans">
+        <id property="transId" column="transId" />
+        <association property="orderObj" column="orderObj" select="com.chengxusheji.mapper.OrderInfoMapper.getOrderInfo" />
+        <association property="carRouteObj" column="carRouteObj" select="com.chengxusheji.mapper.CarRouteMapper.getCarRoute" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有订单运输记录 -->
+	<select id="queryOrderTransList" resultMap="orderTransMap" >
+		select t_orderTrans.* from t_orderTrans,t_carRoute,t_orderInfo ${where} and t_orderTrans.orderObj = t_orderInfo.orderId and t_orderTrans.carRouteObj = t_carRoute.routeId
+	</select>
+
+    <!-- 按照查询条件的订单运输记录数 -->
+	<select id="queryOrderTransCount" resultType="int">
+		select count(*) from t_orderTrans,t_carRoute,t_orderInfo ${where} and t_orderTrans.orderObj = t_orderInfo.orderId and t_orderTrans.carRouteObj = t_carRoute.routeId
+	</select>
+
+	<!-- 根据主键查询某个订单运输记录 -->
+	<select id="getOrderTrans" parameterType="int" resultMap="orderTransMap">
+		select * from t_orderTrans where t_orderTrans.transId = #{transId}
+	</select>
+
+	<!-- 更新订单运输记录 -->
+	<update id="updateOrderTrans" parameterType="orderTrans">
+		update t_orderTrans set orderObj=#{orderObj.orderId},carRouteObj=#{carRouteObj.routeId},joinTime=#{joinTime},memo=#{memo} where transId = #{transId}
+	</update>
+
+	<!-- 删除订单运输记录 -->
+	<delete id="deleteOrderTrans" parameterType="int">
+		delete from t_orderTrans where transId=#{transId}
+	</delete>
+
+</mapper>

@@ -1,0 +1,50 @@
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.OrderInfoMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加用户订单记录 -->
+	<insert id="addOrderInfo" parameterType="orderInfo">
+		insert into t_orderInfo(sendName,sendTelephone,sendAddress,getName,getTelephone,getAddress,productName,productPhoto,productPrice,weight,userObj,orderStateObj,addTime) values 
+		(#{sendName},#{sendTelephone},#{sendAddress},#{getName},#{getTelephone},#{getAddress},#{productName},#{productPhoto},#{productPrice},#{weight},#{userObj.user_name},#{orderStateObj.orderStateId},#{addTime})
+	</insert>
+
+	<!-- 按照查询条件分页查询用户订单记录 -->
+	<select id="queryOrderInfo" resultMap="orderInfoMap" >
+		select t_orderInfo.* from t_orderInfo,t_orderState,t_userInfo ${where} and t_orderInfo.userObj = t_userInfo.user_name and t_orderInfo.orderStateObj = t_orderState.orderStateId limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="orderInfoMap" type="orderInfo">
+        <id property="orderId" column="orderId" />
+        <association property="userObj" column="userObj" select="com.chengxusheji.mapper.UserInfoMapper.getUserInfo" />
+        <association property="orderStateObj" column="orderStateObj" select="com.chengxusheji.mapper.OrderStateMapper.getOrderState" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有用户订单记录 -->
+	<select id="queryOrderInfoList" resultMap="orderInfoMap" >
+		select t_orderInfo.* from t_orderInfo,t_orderState,t_userInfo ${where} and t_orderInfo.userObj = t_userInfo.user_name and t_orderInfo.orderStateObj = t_orderState.orderStateId
+	</select>
+
+    <!-- 按照查询条件的用户订单记录数 -->
+	<select id="queryOrderInfoCount" resultType="int">
+		select count(*) from t_orderInfo,t_orderState,t_userInfo ${where} and t_orderInfo.userObj = t_userInfo.user_name and t_orderInfo.orderStateObj = t_orderState.orderStateId
+	</select>
+
+	<!-- 根据主键查询某个用户订单记录 -->
+	<select id="getOrderInfo" parameterType="int" resultMap="orderInfoMap">
+		select * from t_orderInfo where t_orderInfo.orderId = #{orderId}
+	</select>
+
+	<!-- 更新用户订单记录 -->
+	<update id="updateOrderInfo" parameterType="orderInfo">
+		update t_orderInfo set sendName=#{sendName},sendTelephone=#{sendTelephone},sendAddress=#{sendAddress},getName=#{getName},getTelephone=#{getTelephone},getAddress=#{getAddress},productName=#{productName},productPhoto=#{productPhoto},productPrice=#{productPrice},weight=#{weight},userObj=#{userObj.user_name},orderStateObj=#{orderStateObj.orderStateId},addTime=#{addTime} where orderId = #{orderId}
+	</update>
+
+	<!-- 删除用户订单记录 -->
+	<delete id="deleteOrderInfo" parameterType="int">
+		delete from t_orderInfo where orderId=#{orderId}
+	</delete>
+
+</mapper>

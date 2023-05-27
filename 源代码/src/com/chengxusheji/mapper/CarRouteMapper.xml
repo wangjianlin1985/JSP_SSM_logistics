@@ -1,0 +1,49 @@
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.CarRouteMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加车辆调度记录 -->
+	<insert id="addCarRoute" parameterType="carRoute">
+		insert into t_carRoute(carObj,startPlace,startLongitude,startLatitude,endPlace,endLongitude,endLatitude,currenPlace,startTime,endTime,routeState,costMoney) values 
+		(#{carObj.carNo},#{startPlace},#{startLongitude},#{startLatitude},#{endPlace},#{endLongitude},#{endLatitude},#{currenPlace},#{startTime},#{endTime},#{routeState},#{costMoney})
+	</insert>
+
+	<!-- 按照查询条件分页查询车辆调度记录 -->
+	<select id="queryCarRoute" resultMap="carRouteMap" >
+		select t_carRoute.* from t_carRoute,t_car ${where} and t_carRoute.carObj = t_car.carNo limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="carRouteMap" type="carRoute">
+        <id property="routeId" column="routeId" />
+        <association property="carObj" column="carObj" select="com.chengxusheji.mapper.CarMapper.getCar" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有车辆调度记录 -->
+	<select id="queryCarRouteList" resultMap="carRouteMap" >
+		select t_carRoute.* from t_carRoute,t_car ${where} and t_carRoute.carObj = t_car.carNo
+	</select>
+
+    <!-- 按照查询条件的车辆调度记录数 -->
+	<select id="queryCarRouteCount" resultType="int">
+		select count(*) from t_carRoute,t_car ${where} and t_carRoute.carObj = t_car.carNo
+	</select>
+
+	<!-- 根据主键查询某个车辆调度记录 -->
+	<select id="getCarRoute" parameterType="int" resultMap="carRouteMap">
+		select * from t_carRoute where t_carRoute.routeId = #{routeId}
+	</select>
+
+	<!-- 更新车辆调度记录 -->
+	<update id="updateCarRoute" parameterType="carRoute">
+		update t_carRoute set carObj=#{carObj.carNo},startPlace=#{startPlace},startLongitude=#{startLongitude},startLatitude=#{startLatitude},endPlace=#{endPlace},endLongitude=#{endLongitude},endLatitude=#{endLatitude},currenPlace=#{currenPlace},startTime=#{startTime},endTime=#{endTime},routeState=#{routeState},costMoney=#{costMoney} where routeId = #{routeId}
+	</update>
+
+	<!-- 删除车辆调度记录 -->
+	<delete id="deleteCarRoute" parameterType="int">
+		delete from t_carRoute where routeId=#{routeId}
+	</delete>
+
+</mapper>
